@@ -1,0 +1,7 @@
+name: dartspell
+version: 0.1.0
+author: Ahmet A. Akın <ahmetaa@gmail.com>
+description: Simple Spell checker for Dart
+homepage: https://github.com/ahmetaa/dart-spell
+dev_dependencies:
+  unittest: any
