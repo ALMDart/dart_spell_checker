@@ -25,7 +25,7 @@ Deletions, insertions, substitutions and transpositions are supported.
 ##TODO
 * Add less substitution penalty for near keys in keyboard layout.
 * Add language model support so that it gives more logical suggestions.
-* Add multi word spell suggestion including with space and out of vocabulary word handling.  
+* Add multi word spell suggestion with space and out of vocabulary word handling.  
 
 
 
