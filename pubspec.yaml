@@ -1,7 +1,9 @@
 name: dart_spell
-version: 0.1.0
+version: 0.1.1
 author: Ahmet A. Akın <ahmetaa@gmail.com>
-description: Simple Spell checker for Dart
+description: Simple spell checker for Dart
 homepage: https://github.com/ahmetaa/dart-spell
+environment:
+  sdk: '>=0.8.10+6 <2.0.0'
 dev_dependencies:
-  unittest: any
+  unittest: '>=0.9.0 <0.10.0'

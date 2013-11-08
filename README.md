@@ -27,6 +27,10 @@ Deletions, insertions, substitutions and transpositions are supported.
 * Add language model support so that it gives more logical suggestions.
 * Add multi word spell suggestion with space and out of vocabulary word handling.  
 
+## Change List
+*0.1.1* Dart 1.0 clean-up.  
+*0.1.0* Initial release  
+
 
 
    

@@ -1,7 +1,5 @@
 library dart_spell;
 
-import 'dart:collection';
-
 int _nodeIndexCounter=0;
 
 /**
