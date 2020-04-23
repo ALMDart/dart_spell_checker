@@ -24,7 +24,7 @@ class SingleWordSpellChecker {
 
   void addWord(String word) {    
     //TODO: locale aware lower casing is required.
-    addChar(_root, 0, word.toLowerCase(), word);
+    addChar(word.toLowerCase(), word);
   }
 
   void addWords(Iterable<String> words) {
@@ -33,7 +33,7 @@ class SingleWordSpellChecker {
     }
   }
 
-  void addChar(_Node currentNode, int index, String word, String actual) {
+  void addChar(String word, String actual) {
     var tmpNode = _root;
     for(var rune in word.runes) {
       tmpNode = tmpNode.addChild(rune);
