@@ -1,5 +1,5 @@
 name: dart_spell
-version: 0.1.1+5
+version: 0.1.1+6
 description: Simple spell checker for Dart
 homepage: https://github.com/ahmetaa/dart-spell
 environment:
