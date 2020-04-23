@@ -16,15 +16,15 @@ class SingleWordSpellChecker {
   Map<int, String> nearKeyMap = Map();
   
   double distance=1.0;
-  _Node root;
+  _Node _root;
   
   SingleWordSpellChecker({this.distance:1.0}) {
-    root = _Node(0);
+    _root = _Node(0);
   }
 
   void addWord(String word) {    
     //TODO: locale aware lower casing is required.
-    addChar(root, 0, word.toLowerCase(), word);
+    addChar(_root, 0, word.toLowerCase(), word);
   }
 
   void addWords(Iterable<String> words) {
@@ -33,19 +33,16 @@ class SingleWordSpellChecker {
     }
   }
 
-  _Node addChar(_Node currentNode, int index, String word, String actual) {
-    int c = word.codeUnitAt(index);
-    _Node child = currentNode.addChild(c);
-    if (index == word.length - 1) {
-      child.word = actual;
-      return child;
+  void addChar(_Node currentNode, int index, String word, String actual) {
+    var tmpNode = _root;
+    for(var rune in word.runes) {
+      tmpNode = tmpNode.addChild(rune);
     }
-    index++;
-    return addChar(child, index, word, actual);
+    tmpNode.word = actual;
   }
   
   List<Result> find(String input) {
-    _Hypothesis hyp = _Hypothesis(null, root, 0.0, -1, _Hypothesis.N_A);
+    _Hypothesis hyp = _Hypothesis(null, _root, 0.0, -1, _Hypothesis.N_A);
     Map<String,double> hypotheses = Map();
     Set<_Hypothesis> next = expand(hyp, input, hypotheses);
     while (true) {
