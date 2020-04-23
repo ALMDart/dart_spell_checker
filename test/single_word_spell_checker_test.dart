@@ -1,6 +1,6 @@
 library single_word_spell_checker_test;
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 import 'package:dart_spell/dart_spell.dart';
 import 'dart:math';
 
