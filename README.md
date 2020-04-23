@@ -28,6 +28,7 @@ Deletions, insertions, substitutions and transpositions are supported.
 * Add multi word spell suggestion with space and out of vocabulary word handling.  
 
 ## Change List
+*0.1.1+7* Make addChar private
 *0.1.1+6* Update addChar function header
 *0.1.1+5* Make root private to Search, make addChar iterative instead of recursive  
 *0.1.1+4* Swap out List for Iterable in addWords  
