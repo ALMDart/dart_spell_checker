@@ -4,6 +4,6 @@ author: Ahmet A. Akın <ahmetaa@gmail.com>
 description: Simple spell checker for Dart
 homepage: https://github.com/ahmetaa/dart-spell
 environment:
-  sdk: '>=0.8.10+6 <2.0.0'
+  sdk: '>=2.7.0 <3.0.0'
 dev_dependencies:
   unittest: '>=0.9.0 <0.10.0'
