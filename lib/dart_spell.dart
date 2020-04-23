@@ -223,8 +223,7 @@ class _Hypothesis implements Comparable<_Hypothesis> {
 
   _Hypothesis getNew(
       _Node node, double penaltyToAdd, int index, int operation) {
-    return _Hypothesis(
-        this, node, distance + penaltyToAdd, index, operation);
+    return _Hypothesis(this, node, distance + penaltyToAdd, index, operation);
   }
 
   @override
