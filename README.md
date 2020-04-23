@@ -1,4 +1,4 @@
-dart-spell
+dart_spell
 ==========
 
 A simple spell checker implementation in Dart. For now it only finds the single words from a given 
@@ -28,6 +28,6 @@ Deletions, insertions, substitutions and transpositions are supported.
 * Add multi word spell suggestion with space and out of vocabulary word handling.  
 
 ## Change List
-*0.1.1+1* Dart 2.0 clean-up
+*0.1.1+1* Dart 2.0 clean-up  
 *0.1.1* Dart 1.0 clean-up.  
 *0.1.0* Initial release
