@@ -1,8 +1,8 @@
 library dart_spell;
 
-/**
- * Simple dictionary based spell checker.  
- */
+///
+/// Simple dictionary based spell checker.
+///
 class SingleWordSpellChecker {
   final bool checkNearKeySubstitution = false;
 
@@ -13,12 +13,12 @@ class SingleWordSpellChecker {
 
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
-  Map<int, String> nearKeyMap = Map();
+  Map<int, String> nearKeyMap = <int, String>{};
 
   double distance = 1.0;
   _Node _root;
 
-  SingleWordSpellChecker({this.distance: 1.0}) {
+  SingleWordSpellChecker({num distance = 1.0}) {
     _root = _Node(0);
   }
 
@@ -27,7 +27,7 @@ class SingleWordSpellChecker {
   }
 
   void addWords(Iterable<String> words) {
-    for (String word in words) {
+    for (var word in words) {
       addWord(word);
     }
   }
@@ -41,19 +41,19 @@ class SingleWordSpellChecker {
   }
 
   List<Result> find(String input) {
-    _Hypothesis hyp = _Hypothesis(null, _root, 0.0, -1, _Hypothesis.N_A);
-    Map<String, double> hypotheses = Map();
-    Set<_Hypothesis> next = expand(hyp, input, hypotheses);
+    var hyp = _Hypothesis(null, _root, 0.0, -1, _Hypothesis.N_A);
+    var hypotheses = <String, double>{};
+    var next = expand(hyp, input, hypotheses);
     while (true) {
-      Set<_Hypothesis> newHyps = Set();
-      for (_Hypothesis hypothesis in next) {
+      var newHyps = <_Hypothesis>{};
+      for (var hypothesis in next) {
         newHyps.addAll(expand(hypothesis, input, hypotheses));
       }
-      if (newHyps.length == 0) break;
+      if (newHyps.isEmpty) break;
       next = newHyps;
     }
-    List<Result> result = [];
-    for (String key in hypotheses.keys) {
+    var result = <Result>[];
+    for (var key in hypotheses.keys) {
       result.add(Result(key, hypotheses[key]));
     }
     result.sort();
@@ -62,14 +62,14 @@ class SingleWordSpellChecker {
 
   Set<_Hypothesis> expand(
       _Hypothesis hypothesis, String input, Map<String, double> finished) {
-    Set<_Hypothesis> newHypotheses = Set();
+    var newHypotheses = <_Hypothesis>{};
 
-    int nextIndex = hypothesis.index + 1;
+    var nextIndex = hypothesis.index + 1;
 
     // no-error
     if (nextIndex < input.length) {
       if (hypothesis.node.hasChild(input.codeUnitAt(nextIndex))) {
-        _Hypothesis hyp = hypothesis.getNewMoveForward(
+        var hyp = hypothesis.getNewMoveForward(
             hypothesis.node.getChild(input.codeUnitAt(nextIndex)),
             0.0,
             _Hypothesis.NE);
@@ -78,36 +78,40 @@ class SingleWordSpellChecker {
         } // TODO: below line may produce unnecessary hypotheses.
         newHypotheses.add(hyp);
       }
-    } else if (hypothesis.node.word != null)
+    } else if (hypothesis.node.word != null) {
       addHypothesis(finished, hypothesis);
+    }
 
     // we don't need to explore further if we reached to max penalty
     if (hypothesis.distance >= distance) return newHypotheses;
 
     // substitution
     if (nextIndex < input.length) {
-      for (_Node childNode in hypothesis.node.getChildNodes()) {
-        double penalty = 0.0;
+      for (var childNode in hypothesis.node.getChildNodes()) {
+        var penalty = 0.0;
         if (checkNearKeySubstitution) {
-          int nextChar = input.codeUnitAt(nextIndex);
+          var nextChar = input.codeUnitAt(nextIndex);
           if (childNode.chr != nextChar) {
-            String nearCharactersString = nearKeyMap[childNode.chr];
+            var nearCharactersString = nearKeyMap[childNode.chr];
             if (nearCharactersString != null &&
-                containsCodeunit(nearCharactersString, nextChar))
+                containsCodeunit(nearCharactersString, nextChar)) {
               penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
-            else
+            } else {
               penalty = SUBSTITUTION_PENALTY;
+            }
           }
-        } else
+        } else {
           penalty = SUBSTITUTION_PENALTY;
+        }
 
         if (penalty > 0 && hypothesis.distance + penalty <= distance) {
-          _Hypothesis hyp =
+          var hyp =
               hypothesis.getNewMoveForward(childNode, penalty, _Hypothesis.SUB);
           if (nextIndex == input.length - 1) {
             if (hyp.node.word != null) addHypothesis(finished, hyp);
-          } else
+          } else {
             newHypotheses.add(hyp);
+          }
         }
       }
     }
@@ -119,37 +123,38 @@ class SingleWordSpellChecker {
         hypothesis.node, DELETION_PENALTY, _Hypothesis.DEL));
 
     // insertion
-    for (_Node childNode in hypothesis.node.getChildNodes()) {
+    for (var childNode in hypothesis.node.getChildNodes()) {
       newHypotheses.add(hypothesis.getNew(
           childNode, INSERTION_PENALTY, hypothesis.index, _Hypothesis.INS));
     }
 
     // transposition
     if (nextIndex < input.length - 1) {
-      int transpose = input.codeUnitAt(nextIndex + 1);
-      _Node nextNode = hypothesis.node.getChild(transpose);
-      int nextChar = input.codeUnitAt(nextIndex);
+      var transpose = input.codeUnitAt(nextIndex + 1);
+      var nextNode = hypothesis.node.getChild(transpose);
+      var nextChar = input.codeUnitAt(nextIndex);
       if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
-        _Hypothesis hyp = hypothesis.getNew(nextNode.getChild(nextChar),
+        var hyp = hypothesis.getNew(nextNode.getChild(nextChar),
             TRANSPOSITION_PENALTY, nextIndex + 1, _Hypothesis.TR);
         if (nextIndex == input.length - 1) {
           if (hyp.node.word != null) addHypothesis(finished, hyp);
-        } else
+        } else {
           newHypotheses.add(hyp);
+        }
       }
     }
     return newHypotheses;
   }
 
   bool containsCodeunit(String s, int i) {
-    for (int c in s.codeUnits) {
+    for (var c in s.codeUnits) {
       if (c == i) return true;
     }
     return false;
   }
 
-  addHypothesis(Map<String, double> result, _Hypothesis hypothesis) {
-    String hypWord = hypothesis.node.word;
+  void addHypothesis(Map<String, double> result, _Hypothesis hypothesis) {
+    var hypWord = hypothesis.node.word;
     if (hypWord == null) {
       return;
     }
@@ -163,7 +168,7 @@ class SingleWordSpellChecker {
 
 class _Node {
   int chr;
-  Map<int, _Node> nodes = Map();
+  Map<int, _Node> nodes = <int, _Node>{};
   String word;
 
   _Node(this.chr);
@@ -181,7 +186,7 @@ class _Node {
   }
 
   _Node addChild(int c) {
-    _Node node = nodes[c];
+    var node = nodes[c];
     if (node == null) {
       node = _Node(c);
       nodes[c] = node;
@@ -207,20 +212,22 @@ class _Hypothesis implements Comparable<_Hypothesis> {
   _Hypothesis(
       this.previous, this.node, this.distance, this.index, this.operation);
 
+  @override
   int compareTo(_Hypothesis other) => distance.compareTo(other.distance);
 
   _Hypothesis getNewMoveForward(
       _Node node, double penaltyToAdd, int operation) {
     return _Hypothesis(
-        this, node, this.distance + penaltyToAdd, index + 1, operation);
+        this, node, distance + penaltyToAdd, index + 1, operation);
   }
 
   _Hypothesis getNew(
       _Node node, double penaltyToAdd, int index, int operation) {
     return _Hypothesis(
-        this, node, this.distance + penaltyToAdd, index, operation);
+        this, node, distance + penaltyToAdd, index, operation);
   }
 
+  @override
   bool operator ==(other) {
     if (other is! _Hypothesis) return false;
     return index == other.index &&
@@ -234,16 +241,19 @@ class Result implements Comparable<Result> {
   final double distance;
 
   Result(this.word, this.distance);
+
+  @override
   int compareTo(Result other) => distance.compareTo(other.distance);
 
+  @override
   String toString() {
-    return "$word:$distance";
+    return '$word:$distance';
   }
 }
 
-main() {
+void main() {
   var spellChecker = SingleWordSpellChecker(distance: 1.0);
-  spellChecker.addWords(["apple", "apples", "appl"]);
-  List<Result> hypotheses = spellChecker.find("apple");
+  spellChecker.addWords(['apple', 'apples', 'appl']);
+  var hypotheses = spellChecker.find('apple');
   print(hypotheses);
 }
