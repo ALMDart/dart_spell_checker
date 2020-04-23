@@ -1,7 +1,5 @@
 library dart_spell;
 
-int _nodeIndexCounter=0;
-
 /**
  * Simple dictionary based spell checker.  
  */
@@ -21,7 +19,7 @@ class SingleWordSpellChecker {
   _Node root;
   
   SingleWordSpellChecker({this.distance:1.0}) {
-    root = new _Node(_nodeIndexCounter++,0);
+    root = new _Node(0);
   }
 
   void addWord(String word) {    
@@ -176,12 +174,11 @@ class SingleWordSpellChecker {
 }
 
 class _Node {
-  int index;
   int chr;
   Map<int, _Node> nodes = new Map();
   String word;
   
-  _Node(this.index, this.chr);
+  _Node(this.chr);
   
   Iterable<_Node> getChildNodes() {
     return nodes.values;
@@ -198,19 +195,11 @@ class _Node {
   _Node addChild(int c) {
     _Node node = nodes[c];
     if (node == null) {
-      node = new _Node(_nodeIndexCounter++, c);
+      node = new _Node(c);
       nodes[c]=node;      
     }
     return node;
-  }  
-  
-  bool operator ==(other) {
-    if (!(other is _Node)) return false;
-    return (index == other.index);
-  }  
-  
-  int get hashCode => index; 
-  
+  }
 }
 
 class _Hypothesis implements Comparable<_Hypothesis> {
@@ -244,14 +233,7 @@ class _Hypothesis implements Comparable<_Hypothesis> {
     return index ==  other.index && 
         distance.compareTo(other.distance)==0 && 
         node==other.node;    
-  }    
-  
-  int get hashCode {
-    int result = node.hashCode;
-    result= result*31+distance.hashCode;
-    result= result*31+index;
-    return result;
-  }    
+  }
 }
 
 class Result implements Comparable<Result> {
