@@ -13,13 +13,13 @@ class SingleWordSpellChecker {
   
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;  
-  Map<int, String> nearKeyMap = new Map();
+  Map<int, String> nearKeyMap = Map();
   
   double distance=1.0;
   _Node root;
   
   SingleWordSpellChecker({this.distance:1.0}) {
-    root = new _Node(0);
+    root = _Node(0);
   }
 
   void addWord(String word) {    
@@ -45,11 +45,11 @@ class SingleWordSpellChecker {
   }
   
   List<Result> find(String input) {
-    _Hypothesis hyp = new _Hypothesis(null, root, 0.0, -1, _Hypothesis.N_A);
-    Map<String,double> hypotheses = new Map();
+    _Hypothesis hyp = _Hypothesis(null, root, 0.0, -1, _Hypothesis.N_A);
+    Map<String,double> hypotheses = Map();
     Set<_Hypothesis> next = expand(hyp, input, hypotheses);
     while (true) {
-      Set<_Hypothesis> newHyps = new Set();
+      Set<_Hypothesis> newHyps = Set();
       for (_Hypothesis hypothesis in next) {
         newHyps.addAll(expand(hypothesis, input, hypotheses));
       }
@@ -59,7 +59,7 @@ class SingleWordSpellChecker {
     }
     List<Result> result = [];
     for(String key in hypotheses.keys) {
-      result.add(new Result(key, hypotheses[key]));
+      result.add(Result(key, hypotheses[key]));
     }   
     result.sort();
     return result;
@@ -67,7 +67,7 @@ class SingleWordSpellChecker {
   
   Set<_Hypothesis> expand(_Hypothesis hypothesis, String input, Map<String,double> finished) {
   
-    Set<_Hypothesis> newHypotheses = new Set();
+    Set<_Hypothesis> newHypotheses = Set();
   
     int nextIndex = hypothesis.index + 1;
   
@@ -175,7 +175,7 @@ class SingleWordSpellChecker {
 
 class _Node {
   int chr;
-  Map<int, _Node> nodes = new Map();
+  Map<int, _Node> nodes = Map();
   String word;
   
   _Node(this.chr);
@@ -195,7 +195,7 @@ class _Node {
   _Node addChild(int c) {
     _Node node = nodes[c];
     if (node == null) {
-      node = new _Node(c);
+      node = _Node(c);
       nodes[c]=node;      
     }
     return node;
@@ -221,11 +221,11 @@ class _Hypothesis implements Comparable<_Hypothesis> {
   int compareTo(_Hypothesis other) => distance.compareTo(other.distance);
   
   _Hypothesis getNewMoveForward(_Node node, double penaltyToAdd, int operation) {
-    return new _Hypothesis(this, node, this.distance + penaltyToAdd, index + 1, operation);    
+    return _Hypothesis(this, node, this.distance + penaltyToAdd, index + 1, operation);    
   }  
   
   _Hypothesis getNew(_Node node, double penaltyToAdd, int index, int operation) {
-    return new _Hypothesis(this, node, this.distance + penaltyToAdd, index, operation);    
+    return _Hypothesis(this, node, this.distance + penaltyToAdd, index, operation);    
   }    
   
   bool operator ==(other) {
@@ -249,7 +249,7 @@ class Result implements Comparable<Result> {
 }
 
 main() {
-  var spellChecker = new SingleWordSpellChecker(distance:1.0);
+  var spellChecker = SingleWordSpellChecker(distance:1.0);
   spellChecker.addWords(["apple","apples","appl"]);
   List<Result> hypotheses = spellChecker.find("apple");
   print (hypotheses);
