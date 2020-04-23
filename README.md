@@ -28,6 +28,7 @@ Deletions, insertions, substitutions and transpositions are supported.
 * Add multi word spell suggestion with space and out of vocabulary word handling.  
 
 ## Change List
+*0.1.1+5* Make root private to Search, make addChar iterative instead of recursive  
 *0.1.1+4* Swap out List for Iterable in addWords  
 *0.1.1+3* Remove uses of new to match modern dart  
 *0.1.1+2* Remove unncessary hashing/index code
