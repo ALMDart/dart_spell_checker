@@ -27,7 +27,7 @@ class SingleWordSpellChecker {
     addChar(root, 0, word.toLowerCase(), word);
   }
 
-  void addWords(List<String> words) {
+  void addWords(Iterable<String> words) {
     for (String word in words) {
       addWord(word);
     }
