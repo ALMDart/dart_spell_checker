@@ -38,7 +38,7 @@ class SingleWordSpellChecker {
   List<Result> find(String input) {
     hypotheses = <String, double>{};
 
-    final hyp = _Hypothesis(_root, 0.0, -1, _Hypothesis.NoAction);
+    final hyp = _Hypothesis(_root, 0.0, -1);
     var next = _expand(hyp, input);
     while (next.isNotEmpty) {
       var expanded = next.map((hyp) => _expand(hyp, input));
@@ -57,7 +57,8 @@ class SingleWordSpellChecker {
     if (nextIndex < input.length) {
       if (hypNode.hasChild(input.codeUnitAt(nextIndex))) {
         var hyp = hypothesis.getNewMoveForward(
-            hypNode.getChild(input.codeUnitAt(nextIndex)), 0.0, _Hypothesis.NoError);
+            hypNode.getChild(input.codeUnitAt(nextIndex)),
+            0.0);
         newHypotheses.add(hyp);
       }
     } else {
@@ -98,8 +99,8 @@ class SingleWordSpellChecker {
         }
 
         if (penalty > 0 && hypDist + penalty <= distance) {
-          var hyp =
-              hypothesis.getNewMoveForward(childNode, penalty, _Hypothesis.Substitution);
+          var hyp = hypothesis.getNewMoveForward(
+              childNode, penalty);
           if (nextIndex == input.length - 1) {
             addHypothesis(hyp);
           } else {
@@ -113,12 +114,12 @@ class SingleWordSpellChecker {
 
     // deletion
     newHypotheses.add(hypothesis.getNewMoveForward(
-        hypNode, DELETION_PENALTY, _Hypothesis.Delete));
+        hypNode, DELETION_PENALTY));
 
     // insertion
     for (var childNode in hypNode.children) {
       newHypotheses.add(hypothesis.getNew(
-          childNode, INSERTION_PENALTY, hypothesis.index, _Hypothesis.Insert));
+          childNode, INSERTION_PENALTY, hypothesis.index));
     }
 
     // transposition
@@ -127,8 +128,8 @@ class SingleWordSpellChecker {
       var nextNode = hypNode.getChild(transpose);
       var nextChar = input.codeUnitAt(nextIndex);
       if (hypNode.hasChild(transpose) && nextNode.hasChild(nextChar)) {
-        var hyp = hypothesis.getNew(nextNode.getChild(nextChar),
-            TRANSPOSITION_PENALTY, nextIndex + 1, _Hypothesis.Transpose);
+        var hyp = hypothesis.getNew(
+            nextNode.getChild(nextChar), TRANSPOSITION_PENALTY, nextIndex + 1);
         if (nextIndex == input.length - 1) {
           addHypothesis(hyp);
         } else {
@@ -175,30 +176,19 @@ class _Node {
 }
 
 class _Hypothesis {
-  static const NoError = 0;
-  static const Insert = 1;
-  static const Delete = 2;
-  static const Substitution = 3;
-  static const Transpose = 4;
-  static const NoAction = 5;
-
-  int operation;
   _Node node;
   double distance;
   int index = -1;
 
-  _Hypothesis(this.node, this.distance, this.index, this.operation);
+  _Hypothesis(this.node, this.distance, this.index);
 
 //  _Hypothesis
-  _Hypothesis getNewMoveForward(
-      _Node node, double penaltyToAdd, int operation) {
-    return _Hypothesis(
-        node, distance + penaltyToAdd, index + 1, operation);
+  _Hypothesis getNewMoveForward(_Node node, double penaltyToAdd) {
+    return _Hypothesis(node, distance + penaltyToAdd, index + 1);
   }
 
-  _Hypothesis getNew(
-      _Node node, double penaltyToAdd, int index, int operation) {
-    return _Hypothesis(node, distance + penaltyToAdd, index, operation);
+  _Hypothesis getNew(_Node node, double penaltyToAdd, int index) {
+    return _Hypothesis(node, distance + penaltyToAdd, index);
   }
 
   @override
