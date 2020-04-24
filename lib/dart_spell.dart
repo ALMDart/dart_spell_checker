@@ -62,7 +62,7 @@ class SingleWordSpellChecker {
         newHypotheses.add(hyp);
       }
     } else {
-      addHypothesis(hypothesis);
+      _addHypothesis(hypothesis);
     }
     return newHypotheses;
   }
@@ -102,7 +102,7 @@ class SingleWordSpellChecker {
           var hyp = hypothesis.getNewMoveForward(
               childNode, penalty);
           if (nextIndex == input.length - 1) {
-            addHypothesis(hyp);
+            _addHypothesis(hyp);
           } else {
             newHypotheses.add(hyp);
           }
@@ -131,7 +131,7 @@ class SingleWordSpellChecker {
         var hyp = hypothesis.getNew(
             nextNode.getChild(nextChar), TRANSPOSITION_PENALTY, nextIndex + 1);
         if (nextIndex == input.length - 1) {
-          addHypothesis(hyp);
+          _addHypothesis(hyp);
         } else {
           newHypotheses.add(hyp);
         }
@@ -144,16 +144,10 @@ class SingleWordSpellChecker {
     return s.runes.contains(i);
   }
 
-  void addHypothesis(_Hypothesis hypToAdd) {
+  void _addHypothesis(_Hypothesis hypToAdd) {
     var hypWord = hypToAdd.node.word;
-    if (hypWord == null) {
-      return;
-    }
-    if (!hypotheses.containsKey(hypWord)) {
-      hypotheses[hypWord] = hypToAdd.distance;
-    } else if (hypotheses[hypWord] > hypToAdd.distance) {
-      hypotheses[hypWord] = hypToAdd.distance;
-    }
+    if (hypWord == null) return;
+    hypotheses[hypWord] = hypToAdd.distance;
   }
 }
 
