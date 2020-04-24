@@ -1,5 +1,9 @@
 library dart_spell;
 
+extension ContainsCodeUnit on String {
+  bool containsCodeUnit(int i) => runes.contains(i);
+}
+
 ///
 /// Simple dictionary based spell checker.
 ///
@@ -88,7 +92,7 @@ class SingleWordSpellChecker {
           if (childNode.chr != nextChar) {
             var nearCharactersString = nearKeyMap[childNode.chr];
             if (nearCharactersString != null &&
-                _containsCodeunit(nearCharactersString, nextChar)) {
+                nearCharactersString.containsCodeUnit(nextChar)) {
               penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
             } else {
               penalty = SUBSTITUTION_PENALTY;
@@ -138,10 +142,6 @@ class SingleWordSpellChecker {
       }
     }
     return newHypotheses;
-  }
-
-  bool _containsCodeunit(String s, int i) {
-    return s.runes.contains(i);
   }
 
   void _addHypothesis(_Hypothesis hypToAdd) {
