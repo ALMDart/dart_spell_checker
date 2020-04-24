@@ -235,14 +235,11 @@ class _Hypothesis implements Comparable<_Hypothesis> {
   }
 }
 
-class Result implements Comparable<Result> {
+class Result {
   final String word;
   final double distance;
 
   Result(this.word, this.distance);
-
-  @override
-  int compareTo(Result other) => distance.compareTo(other.distance);
 
   @override
   String toString() {
