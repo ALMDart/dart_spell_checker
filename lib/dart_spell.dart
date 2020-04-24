@@ -48,12 +48,9 @@ class SingleWordSpellChecker {
       if (newHyps.isEmpty) break;
       next = newHyps;
     }
-    var result = <Result>[];
-    for (var key in hypotheses.keys) {
-      result.add(Result(key, hypotheses[key]));
-    }
-    result.sort();
-    return result;
+
+    return hypotheses.keys.map((key) => Result(key, hypotheses[key])).toList()
+      ..sort();
   }
 
   Set<_Hypothesis> expand(_Hypothesis hypothesis, String input) {
@@ -174,7 +171,7 @@ class _Node {
   _Node addChild(int c) => nodes.putIfAbsent(c, () => _Node(c));
 }
 
-class _Hypothesis implements Comparable<_Hypothesis> {
+class _Hypothesis {
   static const NE = 0;
   static const INS = 1;
   static const DEL = 2;
@@ -191,9 +188,7 @@ class _Hypothesis implements Comparable<_Hypothesis> {
   _Hypothesis(
       this.previous, this.node, this.distance, this.index, this.operation);
 
-  @override
-  int compareTo(_Hypothesis other) => distance.compareTo(other.distance);
-
+//  _Hypothesis
   _Hypothesis getNewMoveForward(
       _Node node, double penaltyToAdd, int operation) {
     return _Hypothesis(
