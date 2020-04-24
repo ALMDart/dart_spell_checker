@@ -14,11 +14,12 @@ class SingleWordSpellChecker {
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
   Map<int, String> nearKeyMap = <int, String>{};
+  Map<String, double> hypotheses;
 
-  double distance = 1.0;
+  double distance;
   _Node _root;
 
-  SingleWordSpellChecker({num distance}) {
+  SingleWordSpellChecker({num distance = 1}) {
     if (distance != null) this.distance = distance;
     _root = _Node(0);
   }
@@ -37,11 +38,12 @@ class SingleWordSpellChecker {
   List<Result> find(String input) {
     var hyp = _Hypothesis(null, _root, 0.0, -1, _Hypothesis.N_A);
     var hypotheses = <String, double>{};
-    var next = expand(hyp, input, hypotheses);
+
+    var next = expand(hyp, input);
     while (true) {
       var newHyps = <_Hypothesis>{};
       for (var hypothesis in next) {
-        newHyps.addAll(expand(hypothesis, input, hypotheses));
+        newHyps.addAll(expand(hypothesis, input));
       }
       if (newHyps.isEmpty) break;
       next = newHyps;
@@ -54,8 +56,7 @@ class SingleWordSpellChecker {
     return result;
   }
 
-  Set<_Hypothesis> expand(
-      _Hypothesis hypothesis, String input, Map<String, double> finished) {
+  Set<_Hypothesis> expand(_Hypothesis hypothesis, String input) {
     var newHypotheses = <_Hypothesis>{};
 
     var nextIndex = hypothesis.index + 1;
@@ -68,12 +69,12 @@ class SingleWordSpellChecker {
             0.0,
             _Hypothesis.NE);
         if (nextIndex >= input.length - 1) {
-          if (hyp.node.word != null) addHypothesis(finished, hyp);
+          if (hyp.node.word != null) addHypothesis(hyp);
         } // TODO: below line may produce unnecessary hypotheses.
         newHypotheses.add(hyp);
       }
     } else if (hypothesis.node.word != null) {
-      addHypothesis(finished, hypothesis);
+      addHypothesis(hypothesis);
     }
 
     // we don't need to explore further if we reached to max penalty
@@ -102,7 +103,7 @@ class SingleWordSpellChecker {
           var hyp =
               hypothesis.getNewMoveForward(childNode, penalty, _Hypothesis.SUB);
           if (nextIndex == input.length - 1) {
-            if (hyp.node.word != null) addHypothesis(finished, hyp);
+            if (hyp.node.word != null) addHypothesis(hyp);
           } else {
             newHypotheses.add(hyp);
           }
@@ -131,7 +132,7 @@ class SingleWordSpellChecker {
         var hyp = hypothesis.getNew(nextNode.getChild(nextChar),
             TRANSPOSITION_PENALTY, nextIndex + 1, _Hypothesis.TR);
         if (nextIndex == input.length - 1) {
-          if (hyp.node.word != null) addHypothesis(finished, hyp);
+          if (hyp.node.word != null) addHypothesis(hyp);
         } else {
           newHypotheses.add(hyp);
         }
@@ -147,15 +148,15 @@ class SingleWordSpellChecker {
     return false;
   }
 
-  void addHypothesis(Map<String, double> result, _Hypothesis hypothesis) {
-    var hypWord = hypothesis.node.word;
+  void addHypothesis(_Hypothesis hypToAdd) {
+    var hypWord = hypToAdd.node.word;
     if (hypWord == null) {
       return;
     }
-    if (!result.containsKey(hypWord)) {
-      result[hypWord] = hypothesis.distance;
-    } else if (result[hypWord] > hypothesis.distance) {
-      result[hypWord] = hypothesis.distance;
+    if (!hypotheses.containsKey(hypWord)) {
+      hypotheses[hypWord] = hypToAdd.distance;
+    } else if (hypotheses[hypWord] > hypToAdd.distance) {
+      hypotheses[hypWord] = hypToAdd.distance;
     }
   }
 }
