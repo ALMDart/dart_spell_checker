@@ -249,10 +249,3 @@ class Result implements Comparable<Result> {
     return '$word:$distance';
   }
 }
-
-void main() {
-  var spellChecker = SingleWordSpellChecker(distance: 1.0);
-  spellChecker.addWords(['apple', 'apples', 'appl']);
-  var hypotheses = spellChecker.find('apple');
-  print(hypotheses);
-}
