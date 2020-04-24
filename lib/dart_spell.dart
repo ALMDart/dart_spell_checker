@@ -88,7 +88,7 @@ class SingleWordSpellChecker {
           if (childNode.chr != nextChar) {
             var nearCharactersString = nearKeyMap[childNode.chr];
             if (nearCharactersString != null &&
-                containsCodeunit(nearCharactersString, nextChar)) {
+                _containsCodeunit(nearCharactersString, nextChar)) {
               penalty = NEAR_KEY_SUBSTITUTION_PENALTY;
             } else {
               penalty = SUBSTITUTION_PENALTY;
@@ -140,11 +140,8 @@ class SingleWordSpellChecker {
     return newHypotheses;
   }
 
-  bool containsCodeunit(String s, int i) {
-    for (var c in s.codeUnits) {
-      if (c == i) return true;
-    }
-    return false;
+  bool _containsCodeunit(String s, int i) {
+    return s.runes.contains(i);
   }
 
   void addHypothesis(_Hypothesis hypToAdd) {
