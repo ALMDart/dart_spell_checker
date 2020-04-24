@@ -18,19 +18,13 @@ class SingleWordSpellChecker {
   double distance = 1.0;
   _Node _root;
 
-  SingleWordSpellChecker({num distance = 1.0}) {
+  SingleWordSpellChecker({num distance}) {
+    if (distance != null) this.distance = distance;
     _root = _Node(0);
   }
 
-  void addWord(String word) {
-    _addChar(word.toLowerCase(), word);
-  }
-
-  void addWords(Iterable<String> words) {
-    for (var word in words) {
-      addWord(word);
-    }
-  }
+  void addWord(String word) => _addChar(word.toLowerCase(), word);
+  void addWords(Iterable<String> words) => words.forEach(addWord);
 
   void _addChar(String word, String actual) {
     var tmpNode = _root;
@@ -87,7 +81,7 @@ class SingleWordSpellChecker {
 
     // substitution
     if (nextIndex < input.length) {
-      for (var childNode in hypothesis.node.getChildNodes()) {
+      for (var childNode in hypothesis.node.children) {
         var penalty = 0.0;
         if (checkNearKeySubstitution) {
           var nextChar = input.codeUnitAt(nextIndex);
@@ -123,7 +117,7 @@ class SingleWordSpellChecker {
         hypothesis.node, DELETION_PENALTY, _Hypothesis.DEL));
 
     // insertion
-    for (var childNode in hypothesis.node.getChildNodes()) {
+    for (var childNode in hypothesis.node.children) {
       newHypotheses.add(hypothesis.getNew(
           childNode, INSERTION_PENALTY, hypothesis.index, _Hypothesis.INS));
     }
@@ -173,26 +167,11 @@ class _Node {
 
   _Node(this.chr);
 
-  Iterable<_Node> getChildNodes() {
-    return nodes.values;
-  }
+  Iterable<_Node> get children => nodes.values;
 
-  bool hasChild(int c) {
-    return nodes.containsKey(c);
-  }
-
-  _Node getChild(int c) {
-    return nodes[c];
-  }
-
-  _Node addChild(int c) {
-    var node = nodes[c];
-    if (node == null) {
-      node = _Node(c);
-      nodes[c] = node;
-    }
-    return node;
-  }
+  bool hasChild(int c) => nodes.containsKey(c);
+  _Node getChild(int c) => nodes[c];
+  _Node addChild(int c) => nodes.putIfAbsent(c, () => _Node(c));
 }
 
 class _Hypothesis implements Comparable<_Hypothesis> {
@@ -203,7 +182,7 @@ class _Hypothesis implements Comparable<_Hypothesis> {
   static const TR = 4;
   static const N_A = 5;
 
-  int operation = N_A;
+  int operation;
   _Hypothesis previous;
   _Node node;
   double distance;
@@ -242,7 +221,5 @@ class Result {
   Result(this.word, this.distance);
 
   @override
-  String toString() {
-    return '$word:$distance';
-  }
+  String toString() => '$word:$distance';
 }
