@@ -36,9 +36,9 @@ class SingleWordSpellChecker {
   }
 
   List<Result> find(String input) {
-    var hyp = _Hypothesis(null, _root, 0.0, -1, _Hypothesis.N_A);
-    var hypotheses = <String, double>{};
+    hypotheses = <String, double>{};
 
+    var hyp = _Hypothesis(null, _root, 0.0, -1, _Hypothesis.N_A);
     var next = expand(hyp, input);
     while (true) {
       var newHyps = <_Hypothesis>{};
@@ -58,7 +58,6 @@ class SingleWordSpellChecker {
 
   Set<_Hypothesis> expand(_Hypothesis hypothesis, String input) {
     var newHypotheses = <_Hypothesis>{};
-
     var nextIndex = hypothesis.index + 1;
 
     // no-error
