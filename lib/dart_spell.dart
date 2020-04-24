@@ -38,47 +38,49 @@ class SingleWordSpellChecker {
   List<Result> find(String input) {
     hypotheses = <String, double>{};
 
-    var hyp = _Hypothesis(null, _root, 0.0, -1, _Hypothesis.N_A);
-    var next = expand(hyp, input);
-    while (true) {
-      var newHyps = <_Hypothesis>{};
-      for (var hypothesis in next) {
-        newHyps.addAll(expand(hypothesis, input));
-      }
-      if (newHyps.isEmpty) break;
-      next = newHyps;
+    final hyp = _Hypothesis(_root, 0.0, -1, _Hypothesis.NoAction);
+    var next = _expand(hyp, input);
+    while (next.isNotEmpty) {
+      var expanded = next.map((hyp) => _expand(hyp, input));
+      next = expanded.reduce((e, v) => v.union(e));
     }
 
     return hypotheses.keys.map((key) => Result(key, hypotheses[key])).toList()
       ..sort();
   }
 
-  Set<_Hypothesis> expand(_Hypothesis hypothesis, String input) {
-    var newHypotheses = <_Hypothesis>{};
-    var nextIndex = hypothesis.index + 1;
+  Set<_Hypothesis> _noError(_Hypothesis hypothesis, String input) {
+    final nextIndex = hypothesis.index + 1;
+    final hypNode = hypothesis.node;
+    final newHypotheses = <_Hypothesis>{};
 
-    // no-error
     if (nextIndex < input.length) {
-      if (hypothesis.node.hasChild(input.codeUnitAt(nextIndex))) {
+      if (hypNode.hasChild(input.codeUnitAt(nextIndex))) {
         var hyp = hypothesis.getNewMoveForward(
-            hypothesis.node.getChild(input.codeUnitAt(nextIndex)),
-            0.0,
-            _Hypothesis.NE);
-        if (nextIndex >= input.length - 1) {
-          if (hyp.node.word != null) addHypothesis(hyp);
-        } // TODO: below line may produce unnecessary hypotheses.
+            hypNode.getChild(input.codeUnitAt(nextIndex)), 0.0, _Hypothesis.NoError);
         newHypotheses.add(hyp);
       }
-    } else if (hypothesis.node.word != null) {
+    } else {
       addHypothesis(hypothesis);
     }
+    return newHypotheses;
+  }
+
+  Set<_Hypothesis> _expand(_Hypothesis hypothesis, String input) {
+    final newHypotheses = <_Hypothesis>{};
+    final nextIndex = hypothesis.index + 1;
+    final hypDist = hypothesis.distance;
+    final hypNode = hypothesis.node;
+
+    // no-error
+    newHypotheses.addAll(_noError(hypothesis, input));
 
     // we don't need to explore further if we reached to max penalty
-    if (hypothesis.distance >= distance) return newHypotheses;
+    if (hypDist >= distance) return newHypotheses;
 
     // substitution
     if (nextIndex < input.length) {
-      for (var childNode in hypothesis.node.children) {
+      for (var childNode in hypNode.children) {
         var penalty = 0.0;
         if (checkNearKeySubstitution) {
           var nextChar = input.codeUnitAt(nextIndex);
@@ -95,11 +97,11 @@ class SingleWordSpellChecker {
           penalty = SUBSTITUTION_PENALTY;
         }
 
-        if (penalty > 0 && hypothesis.distance + penalty <= distance) {
+        if (penalty > 0 && hypDist + penalty <= distance) {
           var hyp =
-              hypothesis.getNewMoveForward(childNode, penalty, _Hypothesis.SUB);
+              hypothesis.getNewMoveForward(childNode, penalty, _Hypothesis.Substitution);
           if (nextIndex == input.length - 1) {
-            if (hyp.node.word != null) addHypothesis(hyp);
+            addHypothesis(hyp);
           } else {
             newHypotheses.add(hyp);
           }
@@ -107,28 +109,28 @@ class SingleWordSpellChecker {
       }
     }
 
-    if (hypothesis.distance + DELETION_PENALTY > distance) return newHypotheses;
+    if (hypDist + DELETION_PENALTY > distance) return newHypotheses;
 
     // deletion
     newHypotheses.add(hypothesis.getNewMoveForward(
-        hypothesis.node, DELETION_PENALTY, _Hypothesis.DEL));
+        hypNode, DELETION_PENALTY, _Hypothesis.Delete));
 
     // insertion
-    for (var childNode in hypothesis.node.children) {
+    for (var childNode in hypNode.children) {
       newHypotheses.add(hypothesis.getNew(
-          childNode, INSERTION_PENALTY, hypothesis.index, _Hypothesis.INS));
+          childNode, INSERTION_PENALTY, hypothesis.index, _Hypothesis.Insert));
     }
 
     // transposition
     if (nextIndex < input.length - 1) {
       var transpose = input.codeUnitAt(nextIndex + 1);
-      var nextNode = hypothesis.node.getChild(transpose);
+      var nextNode = hypNode.getChild(transpose);
       var nextChar = input.codeUnitAt(nextIndex);
-      if (hypothesis.node.hasChild(transpose) && nextNode.hasChild(nextChar)) {
+      if (hypNode.hasChild(transpose) && nextNode.hasChild(nextChar)) {
         var hyp = hypothesis.getNew(nextNode.getChild(nextChar),
-            TRANSPOSITION_PENALTY, nextIndex + 1, _Hypothesis.TR);
+            TRANSPOSITION_PENALTY, nextIndex + 1, _Hypothesis.Transpose);
         if (nextIndex == input.length - 1) {
-          if (hyp.node.word != null) addHypothesis(hyp);
+          addHypothesis(hyp);
         } else {
           newHypotheses.add(hyp);
         }
@@ -169,35 +171,34 @@ class _Node {
   bool hasChild(int c) => nodes.containsKey(c);
   _Node getChild(int c) => nodes[c];
   _Node addChild(int c) => nodes.putIfAbsent(c, () => _Node(c));
+  bool endsWord() => word != null;
 }
 
 class _Hypothesis {
-  static const NE = 0;
-  static const INS = 1;
-  static const DEL = 2;
-  static const SUB = 3;
-  static const TR = 4;
-  static const N_A = 5;
+  static const NoError = 0;
+  static const Insert = 1;
+  static const Delete = 2;
+  static const Substitution = 3;
+  static const Transpose = 4;
+  static const NoAction = 5;
 
   int operation;
-  _Hypothesis previous;
   _Node node;
   double distance;
   int index = -1;
 
-  _Hypothesis(
-      this.previous, this.node, this.distance, this.index, this.operation);
+  _Hypothesis(this.node, this.distance, this.index, this.operation);
 
 //  _Hypothesis
   _Hypothesis getNewMoveForward(
       _Node node, double penaltyToAdd, int operation) {
     return _Hypothesis(
-        this, node, distance + penaltyToAdd, index + 1, operation);
+        node, distance + penaltyToAdd, index + 1, operation);
   }
 
   _Hypothesis getNew(
       _Node node, double penaltyToAdd, int index, int operation) {
-    return _Hypothesis(this, node, distance + penaltyToAdd, index, operation);
+    return _Hypothesis(node, distance + penaltyToAdd, index, operation);
   }
 
   @override
@@ -209,11 +210,14 @@ class _Hypothesis {
   }
 }
 
-class Result {
+class Result implements Comparable<Result> {
   final String word;
   final double distance;
 
   Result(this.word, this.distance);
+
+  @override
+  int compareTo(Result other) => distance.compareTo(other.distance);
 
   @override
   String toString() => '$word:$distance';
