@@ -49,7 +49,7 @@ class SingleWordSpellChecker {
 
   void _addChar(String word, String actual) {
     var tmpNode = _root;
-    for (var rune in word?.toLowerCase()?.runes) {
+    for (final rune in word?.toLowerCase()?.runes) {
       // TODO: Add tests for this
       // TODO: Make custom exception
       if (!isChar(rune)) {
@@ -62,13 +62,13 @@ class SingleWordSpellChecker {
   }
 
   List<Result> find(String input) {
-    var lowered = input.toLowerCase();
+    final lowered = input.toLowerCase();
     hypotheses = <String, double>{};
 
     final hyp = _Hypothesis(_root, 0.0, -1);
     var next = _expand(hyp, lowered);
     while (next.isNotEmpty) {
-      var expanded = next.map((hyp) => _expand(hyp, lowered));
+      final expanded = next.map((hyp) => _expand(hyp, lowered));
       next = expanded.reduce((e, v) => v?.union(e));
     }
 
@@ -83,7 +83,7 @@ class SingleWordSpellChecker {
 
     if (nextIndex < input.length) {
       if (hypNode.hasChild(input.codeUnitAt(nextIndex))) {
-        var hyp = hypothesis.getNewMoveForward(
+        final hyp = hypothesis.getNewMoveForward(
             hypNode.getChild(input.codeUnitAt(nextIndex)), 0.0);
         newHypotheses.add(hyp);
       }
@@ -98,13 +98,11 @@ class SingleWordSpellChecker {
   Set<_Hypothesis> _handleNearKey(
       _Hypothesis hypothesis, String input, _Node childNode) {
     final nextIndex = hypothesis.index + 1;
-    final hypNode = hypothesis.node;
-    final hypDist = hypothesis.distance;
     final newHypotheses = <_Hypothesis>{};
 
-    var nextChar = input.codeUnitAt(nextIndex);
+    final nextChar = input.codeUnitAt(nextIndex);
     if (childNode.chr != nextChar) {
-      var nearCharactersString = nearKeyMap[childNode.chr];
+      final nearCharactersString = nearKeyMap[childNode.chr];
       if (nearCharactersString != null &&
           nearCharactersString.containsCodeUnit(nextChar)) {
         //NEAR_KEY_SUBSTITUTION_PENALTY;
@@ -122,7 +120,7 @@ class SingleWordSpellChecker {
 
     if (hypDist + SUBSTITUTION_PENALTY <= distance) {
       // TODO consider double add for noError
-      var hyp = hypothesis.getNewMoveForward(childNode, SUBSTITUTION_PENALTY);
+      final hyp = hypothesis.getNewMoveForward(childNode, SUBSTITUTION_PENALTY);
       if (nextIndex == input.length - 1) {
         if (hyp.isWord) {
           _addHypothesis(hyp);
@@ -142,7 +140,7 @@ class SingleWordSpellChecker {
 
 // substitution
     if (nextIndex < input.length) {
-      for (var childNode in children) {
+      for (final childNode in children) {
         if (checkNearKeySubstitution) {
           newHypotheses.addAll(_handleNearKey(hypothesis, input, childNode));
         } else {
@@ -167,7 +165,7 @@ class SingleWordSpellChecker {
     final newHypotheses = <_Hypothesis>{};
 
     // insertion
-    for (var childNode in hypNode.children) {
+    for (final childNode in hypNode.children) {
       newHypotheses.add(
           hypothesis.getNew(childNode, INSERTION_PENALTY, hypothesis.index));
     }
@@ -181,11 +179,11 @@ class SingleWordSpellChecker {
     final newHypotheses = <_Hypothesis>{};
 
     if (nextIndex < input.length - 1) {
-      var transpose = input.codeUnitAt(nextIndex + 1);
-      var nextNode = hypNode.getChild(transpose);
-      var nextChar = input.codeUnitAt(nextIndex);
+      final transpose = input.codeUnitAt(nextIndex + 1);
+      final nextNode = hypNode.getChild(transpose);
+      final nextChar = input.codeUnitAt(nextIndex);
       if (hypNode.hasChild(transpose) && nextNode.hasChild(nextChar)) {
-        var hyp = hypothesis.getNew(
+        final hyp = hypothesis.getNew(
             nextNode.getChild(nextChar), TRANSPOSITION_PENALTY, nextIndex + 1);
         if (nextIndex == input.length - 1) {
           if (hyp.isWord) {
@@ -201,9 +199,7 @@ class SingleWordSpellChecker {
 
   Set<_Hypothesis> _expand(_Hypothesis hypothesis, String input) {
     final newHypotheses = <_Hypothesis>{};
-    final nextIndex = hypothesis.index + 1;
     final hypDist = hypothesis.distance;
-    final hypNode = hypothesis.node;
 
     // no-error
     newHypotheses.addAll(_noError(hypothesis, input));
@@ -230,7 +226,7 @@ class SingleWordSpellChecker {
   }
 
   void _addHypothesis(_Hypothesis hypToAdd) {
-    var hypWord = hypToAdd.node.word;
+    final hypWord = hypToAdd.node.word;
     if (isNull(hypWord)) return;
     hypotheses.putIfAbsent(hypWord, () => hypToAdd.distance);
   }
