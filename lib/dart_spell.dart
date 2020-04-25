@@ -232,7 +232,7 @@ class SingleWordSpellChecker {
   void _addHypothesis(_Hypothesis hypToAdd) {
     var hypWord = hypToAdd.node.word;
     if (isNull(hypWord)) return;
-    hypotheses[hypWord] = hypToAdd.distance;
+    hypotheses.putIfAbsent(hypWord, () => hypToAdd.distance);
   }
 }
 
@@ -279,13 +279,22 @@ class _Hypothesis {
   }
 
   bool get isWord => node.endsWord();
-//  @override
-//  bool operator ==(other) {
-//    if (other is! _Hypothesis) return false;
-//    return index == other.index &&
-//        distance.compareTo(other.distance) == 0 &&
-//        node == other.node;
-//  }
+
+  @override
+  int get hashCode {
+    var result = node.hashCode;
+    result= result*31+distance.hashCode;
+    result= result*31+index;
+    return result;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (other is! _Hypothesis) return false;
+    return index == other.index &&
+        distance.compareTo(other.distance) == 0 &&
+        node == other.node;
+  }
 }
 
 class Result implements Comparable<Result> {
