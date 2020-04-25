@@ -4,77 +4,81 @@ import 'package:test/test.dart';
 import 'package:dart_spell/dart_spell.dart';
 import 'dart:math';
 
-main() {
-  var checker = new SingleWordSpellChecker(distance:1.0);
-  checker.addWords(["apple","pear"]);
-  var str = "apple";
-  test('All Variations',() {
-    Set<String> delete = randomDelete(str,1);
-    for(String s in delete) {
-      expect(checker.find(s)[0].word==str, isTrue);   
+final Random r = Random(0xbeef);
+
+void main() {
+  final checker = SingleWordSpellChecker(distance: 1.0);
+  checker.addWords(['apple', 'applesauce', 'applause', 'pear']);
+  final str = 'apple';
+  test('All Variations', () {
+    final delete = randomDelete(str, 1);
+    for (var s in delete) {
+      expect(checker.find(s)[0].word == str, isTrue);
     }
-    Set<String> insert = randomInsert(str,1);
-    for(String s in insert) {
-      expect(checker.find(s)[0].word==str, isTrue);   
+    final insert = randomInsert(str, 1);
+    for (var s in insert) {
+      expect(checker.find(s)[0].word == str, isTrue);
     }
-    Set<String> substitute = randomSubstitute(str,1);
-    for(String s in substitute) {
-      expect(checker.find(s)[0].word==str, isTrue);   
+    final substitute = randomSubstitute(str, 1);
+    for (var s in substitute) {
+      expect(checker.find(s)[0].word == str, isTrue);
     }
-    Set<String> transposition = transpositions(str);
-    for(String s in transposition) {
-      expect(checker.find(s)[0].word==str, isTrue);   
+    final transposition = transpositions(str);
+    for (var s in transposition) {
+      expect(checker.find(s)[0].word == str, isTrue);
     }
-  });        
+  });
 }
 
 Set<String> randomDelete(String input, int d) {
-  Set<String> result = new Set();
-  Random r = new Random(0xbeef);
-  for (int i = 0; i < 100; i++) {
-    List<int> sb = new List.from(input.codeUnits, growable:true);
-    for (int j = 0; j < d; j++)
+  final result = <String>{};
+  for (var i = 0; i < 100; i++) {
+    // ignore: omit_local_variable_types
+    List<int> sb = List.from(input.codeUnits, growable: true);
+    for (var j = 0; j < d; j++) {
       sb.removeAt(r.nextInt(sb.length));
-    result.add(new String.fromCharCodes(sb));
+    }
+    result.add(String.fromCharCodes(sb));
   }
   return result;
 }
 
 Set<String> randomInsert(String input, int d) {
-  Set<String> result = new Set();
-  Random r = new Random(0xbeef);
-  for (int i = 0; i < 100; i++) {
-    List<int> sb = new List.from(input.codeUnits, growable:true);
-    for (int j = 0; j < d; j++)
-      sb.insert(r.nextInt(sb.length + 1), "x".codeUnitAt(0));
-    result.add(new String.fromCharCodes(sb));
+  final result = <String>{};
+  for (var i = 0; i < 100; i++) {
+    // ignore: omit_local_variable_types
+    List<int> sb = List.from(input.codeUnits, growable: true);
+    for (var j = 0; j < d; j++) {
+      sb.insert(r.nextInt(sb.length + 1), 'x'.codeUnitAt(0));
+    }
+    result.add(String.fromCharCodes(sb));
   }
   return result;
 }
 
 Set<String> randomSubstitute(String input, int d) {
-  Set<String> result = new Set();
-  Random r = new Random(0xbeef);
-  for (int i = 0; i < 100; i++) {
-    List<int> sb = new List.from(input.codeUnits, growable:true);
-    for (int j = 0; j < d; j++) {
-      int start = r.nextInt(sb.length);
-      sb[start]="x".codeUnitAt(0);
+  final result = <String>{};
+  for (var i = 0; i < 100; i++) {
+    // ignore: omit_local_variable_types
+    List<int> sb = List.from(input.codeUnits, growable: true);
+    for (var j = 0; j < d; j++) {
+      var start = r.nextInt(sb.length);
+      sb[start] = 'x'.codeUnitAt(0);
     }
-    result.add(new String.fromCharCodes(sb));
+    result.add(String.fromCharCodes(sb));
   }
   return result;
 }
 
 Set<String> transpositions(String input) {
-  Set<String> result = new Set();
-  for (int i = 0; i < input.length - 1; i++) {
-    List<int> sb = new List.from(input.codeUnits, growable:true);
-      int tmp = sb[i];
-      sb[i]=sb[i+1];
-      sb[i+1]=tmp;
-      result.add(new String.fromCharCodes(sb));
+  final result = <String>{};
+  for (var i = 0; i < input.length - 1; i++) {
+    // ignore: omit_local_variable_types
+    List<int> sb = List.from(input.codeUnits, growable: true);
+    var tmp = sb[i];
+    sb[i] = sb[i + 1];
+    sb[i + 1] = tmp;
+    result.add(String.fromCharCodes(sb));
   }
-  return result;    
+  return result;
 }
-
