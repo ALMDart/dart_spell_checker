@@ -1,5 +1,19 @@
 library dart_spell;
 
+final int CHARACTER_SPACE = 32;
+final int CHARACTER_RANGE_LOW = 32;
+final int CHARACTER_RANGE_HIGH = 126;
+
+bool isNull(Object obj) {
+  return obj == null;
+}
+
+bool isChar(int char) {
+  return !isNull(char) &&
+      char >= CHARACTER_RANGE_LOW &&
+      char <= CHARACTER_RANGE_HIGH;
+}
+
 extension ContainsCodeUnit on String {
   bool containsCodeUnit(int i) => runes.contains(i);
 }
@@ -17,7 +31,7 @@ class SingleWordSpellChecker {
 
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
-  Map<int, String> nearKeyMap = <int, String>{};
+  final Map<int, String> nearKeyMap = <int, String>{};
   Map<String, double> hypotheses;
 
   double distance;
@@ -28,25 +42,26 @@ class SingleWordSpellChecker {
     _root = _Node(0);
   }
 
-  void addWord(String word) => _addChar(word.toLowerCase(), word);
-  void addWords(Iterable<String> words) => words.forEach(addWord);
+  void addWord(String word) => _addChar(word, word);
+  void addWords(Iterable<String> words) => words?.forEach(addWord);
 
   void _addChar(String word, String actual) {
     var tmpNode = _root;
-    for (var rune in word.runes) {
-      tmpNode = tmpNode.addChild(rune);
+    for (var rune in word.toLowerCase().runes) {
+      tmpNode = tmpNode?.addChild(rune);
     }
     tmpNode.word = actual;
   }
 
   List<Result> find(String input) {
+    var lowered = input.toLowerCase();
     hypotheses = <String, double>{};
 
     final hyp = _Hypothesis(_root, 0.0, -1);
-    var next = _expand(hyp, input);
+    var next = _expand(hyp, lowered);
     while (next.isNotEmpty) {
-      var expanded = next.map((hyp) => _expand(hyp, input));
-      next = expanded.reduce((e, v) => v.union(e));
+      var expanded = next.map((hyp) => _expand(hyp, lowered));
+      next = expanded.reduce((e, v) => v?.union(e));
     }
 
     return hypotheses.keys.map((key) => Result(key, hypotheses[key])).toList()
@@ -146,34 +161,44 @@ class SingleWordSpellChecker {
 
   void _addHypothesis(_Hypothesis hypToAdd) {
     var hypWord = hypToAdd.node.word;
-    if (hypWord == null) return;
+    if (isNull(hypWord)) return;
     hypotheses[hypWord] = hypToAdd.distance;
   }
 }
 
 class _Node {
-  int chr;
-  Map<int, _Node> nodes = <int, _Node>{};
-  String word;
+  final int _index = 0;
+
+  final int chr;
+  final Map<int, _Node> nodes = <int, _Node>{};
+
+  String _word;
+  set word(String word) => _word = word ?? _word;
+  String get word => _word;
+
 
   _Node(this.chr);
+
+  _Node.withIndex(this.chr, int index);
 
   Iterable<_Node> get children => nodes.values;
 
   bool hasChild(int c) => nodes.containsKey(c);
   _Node getChild(int c) => nodes[c];
-  _Node addChild(int c) => nodes.putIfAbsent(c, () => _Node(c));
-  bool endsWord() => word != null;
+  _Node addChild(int c) => nodes.putIfAbsent(c, () => _Node.withIndex(c, _index + 1));
+  bool endsWord() => _word != null;
 }
 
 class _Hypothesis {
-  _Node node;
-  double distance;
-  int index = -1;
+  final _Node node;
+  final double distance;
+  final int index;
 
   _Hypothesis(this.node, this.distance, this.index);
 
-//  _Hypothesis
+  _Hypothesis.initialNode(this.node, this.distance) : index = -1;
+
+  //  _Hypothesis
   _Hypothesis getNewMoveForward(_Node node, double penaltyToAdd) {
     return _Hypothesis(node, distance + penaltyToAdd, index + 1);
   }
@@ -182,20 +207,20 @@ class _Hypothesis {
     return _Hypothesis(node, distance + penaltyToAdd, index);
   }
 
-  @override
-  bool operator ==(other) {
-    if (other is! _Hypothesis) return false;
-    return index == other.index &&
-        distance.compareTo(other.distance) == 0 &&
-        node == other.node;
-  }
+//  @override
+//  bool operator ==(other) {
+//    if (other is! _Hypothesis) return false;
+//    return index == other.index &&
+//        distance.compareTo(other.distance) == 0 &&
+//        node == other.node;
+//  }
 }
 
 class Result implements Comparable<Result> {
   final String word;
   final double distance;
 
-  Result(this.word, this.distance);
+  const Result(this.word, this.distance);
 
   @override
   int compareTo(Result other) => distance.compareTo(other.distance);
