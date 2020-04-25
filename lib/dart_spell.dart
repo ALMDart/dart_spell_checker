@@ -27,9 +27,9 @@ class SingleWordSpellChecker {
   final bool checkNearKeySubstitution = false;
 
   final double INSERTION_PENALTY = 0.4;
-  final double DELETION_PENALTY = 1.0;
-  final double SUBSTITUTION_PENALTY = 0.4;
-  final double TRANSPOSITION_PENALTY = 0.4;
+  final double DELETION_PENALTY = 0.6;
+  final double SUBSTITUTION_PENALTY = 0.6;
+  final double TRANSPOSITION_PENALTY = 0.6;
 
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
