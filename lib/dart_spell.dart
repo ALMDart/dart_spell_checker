@@ -26,10 +26,10 @@ extension ContainsCodeUnit on String {
 class SingleWordSpellChecker {
   final bool checkNearKeySubstitution = false;
 
-  final double INSERTION_PENALTY = 1.0;
-  final double DELETION_PENALTY = 1.0;
-  final double SUBSTITUTION_PENALTY = 1.0;
-  final double TRANSPOSITION_PENALTY = 1.0;
+  final double INSERTION_PENALTY = 0.2;
+  final double DELETION_PENALTY = 0.2;
+  final double SUBSTITUTION_PENALTY = 0.2;
+  final double TRANSPOSITION_PENALTY = 0.2;
 
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
@@ -228,7 +228,13 @@ class SingleWordSpellChecker {
   void _addHypothesis(_Hypothesis hypToAdd) {
     final hypWord = hypToAdd.node.word;
     if (isNull(hypWord)) return;
-    hypotheses.putIfAbsent(hypWord, () => hypToAdd.distance);
+    if(hypotheses.containsKey(hypWord)) {
+      if(hypToAdd.distance < hypotheses[hypWord]) {
+        hypotheses.update(hypWord, (val) => hypToAdd.distance);
+      }
+    } else {
+      hypotheses.putIfAbsent(hypWord, () => hypToAdd.distance);
+    }
   }
 }
 
