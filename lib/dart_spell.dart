@@ -26,10 +26,10 @@ extension ContainsCodeUnit on String {
 class SingleWordSpellChecker {
   final bool checkNearKeySubstitution = false;
 
-  final double INSERTION_PENALTY = 0.2;
-  final double DELETION_PENALTY = 0.2;
-  final double SUBSTITUTION_PENALTY = 0.2;
-  final double TRANSPOSITION_PENALTY = 0.2;
+  final double INSERTION_PENALTY = 0.4;
+  final double DELETION_PENALTY = 1.0;
+  final double SUBSTITUTION_PENALTY = 0.4;
+  final double TRANSPOSITION_PENALTY = 0.4;
 
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
@@ -61,7 +61,20 @@ class SingleWordSpellChecker {
     tmpNode.word = actual;
   }
 
+  bool isWord(String input) {
+    var tmpNode = _root;
+    for(final rune in input.runes) {
+      if(tmpNode.hasChild(rune)) {
+        tmpNode = tmpNode.getChild(rune);
+      } else {
+        return false;
+      }
+    }
+    return tmpNode.endsWord;
+  }
+
   List<Result> find(String input) {
+    if(isWord(input)) return [Result(input, 0)];
     final lowered = input.toLowerCase();
     hypotheses = <String, double>{};
 
@@ -253,7 +266,7 @@ class _Node {
   bool hasChild(int c) => nodes.containsKey(c);
   _Node getChild(int c) => nodes[c];
   _Node addChild(int c) => nodes.putIfAbsent(c, () => _Node(c));
-  bool endsWord() => !isNull(_word);
+  bool get endsWord => !isNull(_word);
 
   @override
   int get hashCode {
@@ -280,7 +293,7 @@ class _Hypothesis {
     return _Hypothesis(node, distance + penaltyToAdd, index);
   }
 
-  bool get isWord => node.endsWord();
+  bool get isWord => node.endsWord;
 
   @override
   int get hashCode {
