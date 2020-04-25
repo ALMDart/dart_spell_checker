@@ -47,7 +47,12 @@ class SingleWordSpellChecker {
 
   void _addChar(String word, String actual) {
     var tmpNode = _root;
-    for (var rune in word.toLowerCase().runes) {
+    for (var rune in word?.toLowerCase()?.runes) {
+      // TODO: Add tests for this
+      // TODO: Make custom exception
+      if(!isChar(rune)) {
+        throw Exception('Invalid character added to spell checker, code unit: $rune}');
+      }
       tmpNode = tmpNode?.addChild(rune);
     }
     tmpNode.word = actual;
