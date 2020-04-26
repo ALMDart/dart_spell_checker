@@ -1,50 +1,62 @@
 library single_word_spell_checker_test;
 
-import 'dart:io';
-
+import 'dart:math';
 import 'package:test/test.dart';
 import 'package:dart_spell/dart_spell.dart';
-import 'dart:math';
+import 'package:list_english_words/list_english_words.dart';
 
 final Random r = Random(0xbeef);
 
-final List<String> words = File('./test/words.txt').readAsStringSync().split('\n');
-
 void main() {
-  final checker = SingleWordSpellChecker(distance: 1.0);
-  checker.addWords(words);
-//  checker.addWords(['apple', 'apply', 'applesauce', 'applause', 'pear']);
+  group('Test Word List', () {
+    final checker = SingleWordSpellChecker(distance: 1.0);
+    checker.addWords(list_english_words);
 
-  final str = 'apple';
-  test('All Variations', () {
-    final delete = randomDelete(str, 1);
-    for (var s in delete) {
-      final findList = checker.find(s);
-      final subSize = findList.length < 5 ? findList.length : 5;
-      final testStrs = findList.sublist(0,subSize).map((e) => e.word).toList();
-      expect(testStrs.contains(str), isTrue);
-    }
-    final insert = randomInsert(str, 1);
-    for (var s in insert) {
-      final findList = checker.find(s);
-      final subSize = findList.length < 5 ? findList.length : 5;
-      final testStrs = findList.sublist(0,subSize).map((e) => e.word).toList();
-      expect(testStrs.contains(str), isTrue);
-    }
-    final substitute = randomSubstitute(str, 1);
-    for (var s in substitute) {
-      final findList = checker.find(s);
-      final subSize = findList.length < 5 ? findList.length : 5;
-      final testStrs = findList.sublist(0,subSize).map((e) => e.word).toList();
-      expect(testStrs.contains(str), isTrue);
-    }
-    final transposition = transpositions(str);
-    for (var s in transposition) {
-      final findList = checker.find(s);
-      final subSize = findList.length < 5 ? findList.length : 5;
-      final testStrs = findList.sublist(0,subSize).map((e) => e.word).toList();
-      expect(testStrs.contains(str), isTrue);
-    }
+    test('All Words In List Come Back First', () {
+      for(final s in list_english_words) {
+        expect(checker.find(s)[0].word == s, isTrue);
+      }
+    });
+  });
+
+  group('Test Short List', () {
+    final checker = SingleWordSpellChecker(distance: 1.0);
+    checker.addWords(['apple', 'apply', 'applesauce', 'applause', 'pear']);
+    final str = 'apple';
+    test('All Variations', () {
+      final delete = randomDelete(str, 1);
+      for (final s in delete) {
+        final findList = checker.find(s);
+        final subSize = findList.length < 5 ? findList.length : 5;
+        final testStrs =
+            findList.sublist(0, subSize).map((e) => e.word).toList();
+        expect(testStrs.contains(str), isTrue);
+      }
+      final insert = randomInsert(str, 1);
+      for (var s in insert) {
+        final findList = checker.find(s);
+        final subSize = findList.length < 5 ? findList.length : 5;
+        final testStrs =
+            findList.sublist(0, subSize).map((e) => e.word).toList();
+        expect(testStrs.contains(str), isTrue);
+      }
+      final substitute = randomSubstitute(str, 1);
+      for (var s in substitute) {
+        final findList = checker.find(s);
+        final subSize = findList.length < 5 ? findList.length : 5;
+        final testStrs =
+            findList.sublist(0, subSize).map((e) => e.word).toList();
+        expect(testStrs.contains(str), isTrue);
+      }
+      final transposition = transpositions(str);
+      for (var s in transposition) {
+        final findList = checker.find(s);
+        final subSize = findList.length < 5 ? findList.length : 5;
+        final testStrs =
+            findList.sublist(0, subSize).map((e) => e.word).toList();
+        expect(testStrs.contains(str), isTrue);
+      }
+    });
   });
 }
 
