@@ -1,8 +1,8 @@
-name: dart_spell
+name: spell_checker
 version: 0.1.2
 
 description: Simple spell checker for Dart
-homepage: https://github.com/ahmetaa/dart-spell
+homepage: https://github.com/almaclaine/dart-spell
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
