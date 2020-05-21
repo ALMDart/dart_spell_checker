@@ -1,4 +1,4 @@
-dart_spell
+dart_spell_checker
 ==========
 
 A simple spell checker implementation in Dart. For now it only finds the single words from a given 
