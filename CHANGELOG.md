@@ -1,3 +1,7 @@
+## 0.1.2+1
+
+Change map to splaymap to avoid final sort
+
 ## 0.1.2
 
 Remove comparable from Result
