@@ -2,7 +2,7 @@ library single_word_spell_checker_test;
 
 import 'dart:math';
 import 'package:test/test.dart';
-import 'package:dart_spell/dart_spell.dart';
+import 'package:spell_checker/spell_checker.dart';
 import 'package:list_english_words/list_english_words.dart';
 
 final Random r = Random(0xbeef);

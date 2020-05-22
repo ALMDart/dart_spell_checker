@@ -10,4 +10,4 @@ environment:
 dev_dependencies:
   test: ^1.14.2
   effective_dart: ^1.2.1
-  list_english_words: ^0.1.1+1
+  list_english_words: ^0.1.1
