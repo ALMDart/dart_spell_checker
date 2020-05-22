@@ -1,24 +1,8 @@
 library dart_spell;
 
-const int CHARACTER_SPACE = 32;
-const int CHARACTER_RANGE_LOW = 32;
-const int CHARACTER_RANGE_HIGH = 126;
-const int NUMBER_OF_CHARACTERS =
-    CHARACTER_RANGE_HIGH - CHARACTER_RANGE_LOW - 26;
+import 'dart:collection';
 
-bool isNull(Object obj) {
-  return obj == null;
-}
-
-bool isChar(int char) {
-  return !isNull(char) &&
-      char >= CHARACTER_RANGE_LOW &&
-      char <= CHARACTER_RANGE_HIGH;
-}
-
-extension ContainsCodeUnit on String {
-  bool containsCodeUnit(int i) => runes.contains(i);
-}
+import 'package:spell_checker/utilities.dart';
 
 ///
 /// Simple dictionary based spell checker.
@@ -34,7 +18,7 @@ class SingleWordSpellChecker {
   //TODO: not used yet.
   final double NEAR_KEY_SUBSTITUTION_PENALTY = 0.5;
   final Map<int, String> nearKeyMap = <int, String>{};
-  Map<String, double> hypotheses;
+  SplayTreeMap<String, double> hypotheses;
 
   double distance;
   _Node _root;
@@ -76,7 +60,7 @@ class SingleWordSpellChecker {
   List<Result> find(String input) {
     if(isWord(input)) return [Result(input, 0)];
     final lowered = input.toLowerCase();
-    hypotheses = <String, double>{};
+    hypotheses = SplayTreeMap<String, double>();
 
     final hyp = _Hypothesis(_root, 0.0, -1);
     var next = _expand(hyp, lowered);
@@ -85,8 +69,7 @@ class SingleWordSpellChecker {
       next = expanded.reduce((e, v) => v?.union(e));
     }
 
-    return hypotheses.keys.map((key) => Result(key, hypotheses[key])).toList()
-      ..sort();
+    return hypotheses.keys.map((key) => Result(key, hypotheses[key])).toList();
   }
 
   Set<_Hypothesis> _noError(_Hypothesis hypothesis, String input) {
