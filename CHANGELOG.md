@@ -1,3 +1,7 @@
+## 0.1.2+2
+
+Add example, comments, format to improve health
+
 ## 0.1.2+1
 
 Change map to splaymap to avoid final sort

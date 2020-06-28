@@ -29,6 +29,7 @@ class SingleWordSpellChecker {
   }
 
   void addWord(String word) => _addChar(word, word);
+
   void addWords(Iterable<String> words) => words?.forEach(addWord);
 
   void _addChar(String word, String actual) {
@@ -47,8 +48,8 @@ class SingleWordSpellChecker {
 
   bool isWord(String input) {
     var tmpNode = _root;
-    for(final rune in input.runes) {
-      if(tmpNode.hasChild(rune)) {
+    for (final rune in input.runes) {
+      if (tmpNode.hasChild(rune)) {
         tmpNode = tmpNode.getChild(rune);
       } else {
         return false;
@@ -58,7 +59,7 @@ class SingleWordSpellChecker {
   }
 
   List<Result> find(String input) {
-    if(isWord(input)) return [Result(input, 0)];
+    if (isWord(input)) return [Result(input, 0)];
     final lowered = input.toLowerCase();
     hypotheses = SplayTreeMap<String, double>();
 
@@ -134,7 +135,7 @@ class SingleWordSpellChecker {
     final children = hypothesis.node.children;
     final newHypotheses = <_Hypothesis>{};
 
-// substitution
+    // substitution
     if (nextIndex < input.length) {
       for (final childNode in children) {
         if (checkNearKeySubstitution) {
@@ -224,8 +225,8 @@ class SingleWordSpellChecker {
   void _addHypothesis(_Hypothesis hypToAdd) {
     final hypWord = hypToAdd.node.word;
     if (isNull(hypWord)) return;
-    if(hypotheses.containsKey(hypWord)) {
-      if(hypToAdd.distance < hypotheses[hypWord]) {
+    if (hypotheses.containsKey(hypWord)) {
+      if (hypToAdd.distance < hypotheses[hypWord]) {
         hypotheses.update(hypWord, (val) => hypToAdd.distance);
       }
     } else {
@@ -239,7 +240,9 @@ class _Node {
   final Map<int, _Node> nodes = <int, _Node>{};
 
   String _word;
+
   set word(String word) => _word = word ?? _word;
+
   String get word => _word;
 
   _Node(this.chr);
@@ -247,8 +250,11 @@ class _Node {
   Iterable<_Node> get children => nodes.values;
 
   bool hasChild(int c) => nodes.containsKey(c);
+
   _Node getChild(int c) => nodes[c];
+
   _Node addChild(int c) => nodes.putIfAbsent(c, () => _Node(c));
+
   bool get endsWord => !isNull(_word);
 
   @override
@@ -257,7 +263,7 @@ class _Node {
   }
 }
 
-// Hypothesis: That the node held in this string ends a word that could be a correct spelling
+/// Hypothesis: That the node held in this string ends a word that could be a correct spelling
 class _Hypothesis {
   final _Node node;
   final double distance;
@@ -281,8 +287,8 @@ class _Hypothesis {
   @override
   int get hashCode {
     var result = node.hashCode;
-    result= result*31+distance.hashCode;
-    result= result*31+index;
+    result = result * 31 + distance.hashCode;
+    result = result * 31 + index;
     return result;
   }
 
@@ -295,6 +301,7 @@ class _Hypothesis {
   }
 }
 
+/// Result value
 class Result implements Comparable<Result> {
   final String word;
   final double distance;
