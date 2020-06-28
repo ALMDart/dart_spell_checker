@@ -5,7 +5,6 @@ bool isNull(Object obj) {
   return obj == null;
 }
 
-
 /// Determines whether parameter is a character
 bool isChar(int char) {
   return !isNull(char) &&
