@@ -1,8 +1,8 @@
 name: spell_checker
-version: 0.1.2+2
+version: 0.1.2+3
 
 description: Simple spell checker for Dart using Peter Norvig's algorithm
-homepage: https://github.com/almaclaine/dart_spell_checker
+homepage: https://github.com/ALMDart/dart_spell_checker
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
